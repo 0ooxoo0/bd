@@ -2,6 +2,7 @@ package ru.hogwarts.school.controlls;
 
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
@@ -11,13 +12,13 @@ import java.util.List;
 public class FacultyController {
     private final FacultyService facultyService;
 
-    public FacultyController(FacultyService studentService) {
-        this.facultyService = studentService;
+    public FacultyController(FacultyService facultyService) {
+        this.facultyService = facultyService;
     }
 
     @PostMapping
-    public Faculty create(@RequestBody Faculty student) {
-        return facultyService.createFaculty(student);
+    public Faculty create(@RequestBody Faculty faculty) {
+        return facultyService.createFaculty(faculty);
     }
 
     @GetMapping("/{id}")
@@ -31,12 +32,22 @@ public class FacultyController {
     }
 
     @PutMapping
-    public Faculty update(@RequestBody Faculty student) {
-        return facultyService.updateFaculty(student);
+    public Faculty update(@RequestBody Faculty faculty) {
+        return facultyService.updateFaculty(faculty);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         facultyService.deleteFaculty(id);
+    }
+
+    @GetMapping("/search")
+    public List<Faculty> search(@RequestParam String search) {
+        return facultyService.findFacultiesByNameOrColor(search);
+    }
+
+    @GetMapping("/{id}/students")
+    public List<Student> getStudentsByFacultyId(@PathVariable Long id) {
+        return facultyService.getStudentsByFacultyId(id);
     }
 }
