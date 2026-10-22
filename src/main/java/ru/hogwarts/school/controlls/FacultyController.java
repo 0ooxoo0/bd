@@ -1,5 +1,6 @@
 package ru.hogwarts.school.controlls;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
@@ -22,8 +23,11 @@ public class FacultyController {
     }
 
     @GetMapping("/{id}")
-    public Faculty get(@PathVariable Long id) {
-        return facultyService.getFaculty(id);
+    public ResponseEntity<Faculty> get(@PathVariable Long id) {
+        Faculty faculty = facultyService.getFaculty(id);
+        return faculty == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(faculty);
     }
 
     @GetMapping
@@ -32,8 +36,11 @@ public class FacultyController {
     }
 
     @PutMapping
-    public Faculty update(@RequestBody Faculty faculty) {
-        return facultyService.updateFaculty(faculty);
+    public ResponseEntity<Faculty> update(@RequestBody Faculty faculty) {
+        Faculty updated = facultyService.updateFaculty(faculty);
+        return updated == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
@@ -47,7 +54,10 @@ public class FacultyController {
     }
 
     @GetMapping("/{id}/students")
-    public List<Student> getStudentsByFacultyId(@PathVariable Long id) {
-        return facultyService.getStudentsByFacultyId(id);
+    public ResponseEntity<List<Student>> getStudentsByFacultyId(@PathVariable Long id) {
+        if (facultyService.getFaculty(id) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(facultyService.getStudentsByFacultyId(id));
     }
 }
