@@ -20,83 +20,61 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public Student createStudent(Student student) {
-        logger.info("Was invoked method for createStudent");
+    public Student create(Student student) {
+        logger.info("Was invoked method for create student");
         logger.debug("Creating student with name: {}", student.getName());
         return studentRepository.save(student);
     }
 
-    public Student getStudent(Long id) {
-        logger.info("Was invoked method for getStudent");
-        return studentRepository.findById(id).orElse(null);
+    public Student get(Long id) {
+        logger.info("Was invoked method for get student");
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            // Исправлено: используем {} вместо конкатенации
+            logger.error("Student not found with id = {}", id);
+        }
+        return student;
     }
 
-    public List<Student> getAllStudents() {
-        logger.info("Was invoked method for getAllStudents");
+    public List<Student> getAll() {
+        logger.info("Was invoked method for get all students");
         return studentRepository.findAll();
     }
 
-    public Student updateStudent(Student student) {
-        logger.info("Was invoked method for updateStudent");
+    public Student update(Student student) {
+        logger.info("Was invoked method for update student");
         if (!studentRepository.existsById(student.getId())) {
-            logger.warn("Student with id {} not found for update", student.getId());
+            // Исправлено: изменили текст, чтобы он не дублировался
+            logger.error("Cannot update: student not found with id = {}", student.getId());
             return null;
         }
-        logger.debug("Updating student with id: {}", student.getId());
         return studentRepository.save(student);
     }
 
-    public void deleteStudent(Long id) {
-        logger.info("Was invoked method for deleteStudent");
+    public void delete(Long id) {
+        logger.info("Was invoked method for delete student");
+        if (!studentRepository.existsById(id)) {
+            // Исправлено: используем {} и изменили текст
+            logger.warn("Cannot delete: student not found with id = {}", id);
+        }
         studentRepository.deleteById(id);
     }
 
-    public List<Student> getStudentsByAge(int age) {
-        logger.info("Was invoked method for getStudentsByAge");
-        return studentRepository.findByAge(age);
-    }
-
     public List<Student> getStudentsByAgeBetween(int min, int max) {
-        logger.info("Was invoked method for getStudentsByAgeBetween");
-        return studentRepository.findByAgeBetween(min, max);
-    }
-
-    public List<Student> getStudentsByName(String name) {
-        logger.info("Was invoked method for getStudentsByName");
-        return studentRepository.findByNameIgnoreCase(name);
-    }
-
-    public List<String> getStudentNamesStartingWithA() {
-        logger.info("Was invoked method for getStudentNamesStartingWithA");
+        logger.info("Was invoked method for get students by age between");
         return studentRepository.findAll().stream()
-                .map(Student::getName)
-                .map(String::toUpperCase)
-                .filter(name -> name.startsWith("A"))
-                .sorted()
+                .filter(s -> s.getAge() >= min && s.getAge() <= max)
                 .toList();
     }
 
-    public Faculty getFacultyByStudentId(Long studentId) {
-        logger.info("Was invoked method for getFacultyByStudentId");
-        Student student = studentRepository.findById(studentId).orElse(null);
-        return student == null ? null : student.getFaculty();
-    }
-
-    public long getStudentsCount() {
-        logger.info("Was invoked method for getStudentsCount");
-        return studentRepository.countAllStudents();
-    }
-
-    public double getAverageAge() {
-        logger.info("Was invoked method for getAverageAge");
-        return studentRepository.findAll().stream()
-                .mapToInt(Student::getAge)
-                .average()
-                .orElse(0);
-    }
-
-    public List<Student> getLastFiveStudents() {
-        logger.info("Was invoked method for getLastFiveStudents");
-        return studentRepository.findTop5ByOrderByIdDesc();
+    public Faculty getFacultyByStudentId(Long id) {
+        logger.info("Was invoked method for get faculty by student id");
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            // Исправлено: изменили текст
+            logger.error("Cannot get faculty: student not found with id = {}", id);
+            return null;
+        }
+        return student.getFaculty();
     }
 }
