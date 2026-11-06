@@ -66,6 +66,16 @@ public class StudentService {
         return studentRepository.findByNameIgnoreCase(name);
     }
 
+    public List<String> getStudentNamesStartingWithA() {
+        logger.info("Was invoked method for getStudentNamesStartingWithA");
+        return studentRepository.findAll().stream()
+                .map(Student::getName)
+                .map(String::toUpperCase)
+                .filter(name -> name.startsWith("A"))
+                .sorted()
+                .toList();
+    }
+
     public Faculty getFacultyByStudentId(Long studentId) {
         logger.info("Was invoked method for getFacultyByStudentId");
         Student student = studentRepository.findById(studentId).orElse(null);
@@ -79,8 +89,10 @@ public class StudentService {
 
     public double getAverageAge() {
         logger.info("Was invoked method for getAverageAge");
-        Double avg = studentRepository.getAverageAge();
-        return avg != null ? avg : 0.0; // возвращаем 0.0, если студентов нет
+        return studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0);
     }
 
     public List<Student> getLastFiveStudents() {
